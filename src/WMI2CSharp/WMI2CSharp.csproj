@@ -9,6 +9,13 @@
     <Version>1.0.0.0</Version>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Nicolai Sixhøj Christensen</Authors>
+    <PackageTags>WMI, C#, CSharp, ORM</PackageTags>
+    <RepositoryUrl>https://github.com/sixhoij/WMI2CSharp</RepositoryUrl>
+    <Description>WMI2CSharp is a library for Windows Management Instrumentation Object Relational Mapping. It will fetch data upon a provided access information and hostname. Task optimized and parameterizable to minimize fetch time.</Description>
+    <PackageReleaseNotes>1.0.0.0 - Initial Release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
