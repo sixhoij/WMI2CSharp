@@ -23,8 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unittests", "unittests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMI2CSharp.Test.Framework.App", "test\framework\app\WMI2CSharp.Test.Framework.App\WMI2CSharp.Test.Framework.App.csproj", "{A5B08D8D-CD60-4C33-A943-376B145BDFFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMI2CSharp.Test.Framework.Unittests", "WMI2CSharp.Test.Framework.Unittests\WMI2CSharp.Test.Framework.Unittests.csproj", "{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,10 +37,6 @@ Global
 		{A5B08D8D-CD60-4C33-A943-376B145BDFFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5B08D8D-CD60-4C33-A943-376B145BDFFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5B08D8D-CD60-4C33-A943-376B145BDFFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,7 +50,6 @@ Global
 		{F7AB9314-CD35-4F70-B4CC-3AB016AF13D6} = {D2EC6924-C8D5-42FD-B74B-22E6747B5F85}
 		{021C7917-AC0F-4BBE-A02A-607ABA4874B7} = {D2EC6924-C8D5-42FD-B74B-22E6747B5F85}
 		{A5B08D8D-CD60-4C33-A943-376B145BDFFD} = {F7AB9314-CD35-4F70-B4CC-3AB016AF13D6}
-		{FE65D7C9-D06A-4ABB-8560-B9C8F47753BF} = {021C7917-AC0F-4BBE-A02A-607ABA4874B7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0E2CF9AB-78CB-4055-AF9A-FD4163C0BD05}
