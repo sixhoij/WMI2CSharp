@@ -11,9 +11,18 @@ namespace WMI2CSharp.Services
     {
         private ManagementScope _managementScope;
 
-        public bool Connected { get; set; }
+        public bool Connected { get; private set; }
 
         public string EndPoint { get; private set; }
+
+        public WMIAccessService() : this(Environment.MachineName)
+        {
+        }
+
+        public WMIAccessService(string endPoint)
+        {
+            EndPoint = endPoint;
+        }
 
         /// <summary>
         /// Tries to query WMI class from EndPoint.
@@ -95,13 +104,27 @@ namespace WMI2CSharp.Services
         /// <returns>Returns awaitable Task with bool state of connection.</returns>
         public async Task<bool> TryConnectAsync(string user, string pass, string endPoint, string domain)
         {
-            var connectionOptions = new ConnectionOptions
+            ConnectionOptions connectionOptions = null;
+            if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(domain))
             {
-                Username = user,
-                Password = pass,
-                Authority = $"ntlmdomain:{domain.ToLower()}"
-            };
+                connectionOptions = new ConnectionOptions
+                {
+                    Username = user,
+                    Password = pass,
+                    Authority = $"ntlmdomain:{domain.ToLower()}"
+                };
+            }
             await TryConnectAsync(endPoint, connectionOptions).ConfigureAwait(false);
+            return Connected;
+        }
+
+        /// <summary>
+        /// Tries to connect to localhost.
+        /// </summary>
+        /// <returns>Returns awaitable Task with bool state of connection.</returns>
+        public async Task<bool> TryConnectAsync()
+        {
+            await TryConnectAsync(EndPoint, null).ConfigureAwait(false);
             return Connected;
         }
 
@@ -118,7 +141,7 @@ namespace WMI2CSharp.Services
                 {
                     try
                     {
-                        _managementScope = connectionOptions == null
+                        _managementScope = connectionOptions == null || EndPoint.ToLower() == "local" || EndPoint == "."
                             ? new ManagementScope($@"\\{EndPoint}\root\CIMV2")
                             : new ManagementScope($@"\\{EndPoint}\root\CIMV2", connectionOptions);
                         ConnectionGuard();
