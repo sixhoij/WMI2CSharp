@@ -66,9 +66,6 @@ namespace WMI2CSharp.Models
         [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
         public OperatingSystem OperatingSystem { get; set; } = new OperatingSystem();
 
-        [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
-        public SoftwareLicensingService SoftwareLicensingService { get; set; } = new SoftwareLicensingService();
-
         [InformationCategory(InformationCategory.InternalHardware)]
         public ICollection<PhysicalMemory> PhysicalMemories { get; set; } = new List<PhysicalMemory>();
 
@@ -104,6 +101,9 @@ namespace WMI2CSharp.Models
 
         [InformationCategory(InformationCategory.Software, InformationCategory.Application, InformationCategory.System)]
         public ICollection<Service> Services { get; set; } = new List<Service>();
+
+        [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
+        public SoftwareLicensingService SoftwareLicensingService { get; set; } = new SoftwareLicensingService();
 
         [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
         public TimeZone TimeZone { get; set; } = new TimeZone();
@@ -180,6 +180,15 @@ namespace WMI2CSharp.Models
         /// <returns>Returns awaitable Task</returns>
         public async Task<Device> InitializeAsync()
         {
+            if (InformationCategories == null && InformationTypes == null ||
+                InformationCategories != null && InformationTypes != null && !InformationTypes.Any() && !InformationCategories.Any())
+            {
+                InformationCategories = new[]
+                {
+                    InformationCategory.All
+                };
+            }
+
             var start = DateTime.Now;
             await GetDeviceInformationAsync().ConfigureAwait(false);
             ExecutionTime = DateTime.Now - start;
@@ -252,10 +261,7 @@ namespace WMI2CSharp.Models
             {
                 var typeName = memberInfo?.Name;
                 var parsed = Enum.TryParse(typeName, out InformationType informationType);
-                if (parsed && InformationTypes.Contains(informationType))
-                {
-                    return true;
-                }
+                return parsed && InformationTypes.Contains(informationType);
             }
 
             return false;
@@ -290,40 +296,28 @@ namespace WMI2CSharp.Models
             return false;
         }
 
-        private Task FillPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, string wmiClassName)
+        private async Task FillPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, string wmiClassName)
         {
-            return Task.Run(async () =>
+            if (_wmiAccessService != null)
             {
-                if (_wmiAccessService != null)
-                {
-                    var managementBaseObject = await (_wmiAccessService?.TryQueryAsync(wmiClassName)).ConfigureAwait(false);
-                    var obj = await TryMapObjectAsync(managementBaseObject, modelPropertyInfo?.PropertyType).ConfigureAwait(false);
-                    modelPropertyInfo?.SetValue(this, obj);
-                }
-            });
+                var managementBaseObject = await (_wmiAccessService?.TryQueryAsync(wmiClassName)).ConfigureAwait(false);
+                var obj = await TryMapObjectAsync(managementBaseObject, modelPropertyInfo?.PropertyType).ConfigureAwait(false);
+                modelPropertyInfo?.SetValue(this, obj);
+            }
         }
 
-        private Task FillCollectionPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, Type propertyType, string wmiClassName)
+        private async Task FillCollectionPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, Type propertyType, string wmiClassName)
         {
-            return Task.Run(async () =>
+            if (_wmiAccessService != null)
             {
-                var tasks = new List<Task>();
-                if (_wmiAccessService != null)
+                var managementBaseObjects = await (_wmiAccessService?.TryQueryCollectionAsync(wmiClassName)).ConfigureAwait(false);
+                foreach (var managementBaseObject in managementBaseObjects)
                 {
-                    var managementBaseObjects = await (_wmiAccessService?.TryQueryCollectionAsync(wmiClassName)).ConfigureAwait(false);
-                    foreach (var managementBaseObject in managementBaseObjects)
-                    {
-                        tasks.Add(Task.Run(async () =>
-                        {
-                            var obj = await TryMapObjectAsync(managementBaseObject, propertyType).ConfigureAwait(false);
-                            var collection = modelPropertyInfo?.GetValue(this, null);
-                            modelPropertyInfo?.PropertyType.GetMethod("Add")?.Invoke(collection, new[] { obj });
-                        }));
-                    }
+                    var obj = await TryMapObjectAsync(managementBaseObject, propertyType).ConfigureAwait(false);
+                    var collection = modelPropertyInfo?.GetValue(this, null);
+                    modelPropertyInfo?.PropertyType.GetMethod("Add")?.Invoke(collection, new[] { obj });
                 }
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            });
+            }
         }
 
         private async Task<object> TryMapObjectAsync(ManagementBaseObject managementBaseObject, Type propertyType)
