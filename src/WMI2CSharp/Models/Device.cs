@@ -66,6 +66,9 @@ namespace WMI2CSharp.Models
         [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
         public OperatingSystem OperatingSystem { get; set; } = new OperatingSystem();
 
+        [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
+        public SoftwareLicensingService SoftwareLicensingService { get; set; } = new SoftwareLicensingService();
+
         [InformationCategory(InformationCategory.InternalHardware)]
         public ICollection<PhysicalMemory> PhysicalMemories { get; set; } = new List<PhysicalMemory>();
 
