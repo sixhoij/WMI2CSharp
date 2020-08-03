@@ -27,6 +27,7 @@
         SerialPort,
         SerialPortConfiguration,
         Service,
+        SoftwareLicensingService,
         TimeZone,
         VideoController,
         Volume,
