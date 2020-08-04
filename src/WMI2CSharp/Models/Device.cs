@@ -259,9 +259,15 @@ namespace WMI2CSharp.Models
         {
             if (InformationTypes != null)
             {
+                if (InformationTypes.Contains(InformationType.All))
+                {
+                    return true;
+                }
+
                 var typeName = memberInfo?.Name;
                 var parsed = Enum.TryParse(typeName, out InformationType informationType);
                 return parsed && InformationTypes.Contains(informationType);
+
             }
 
             return false;
