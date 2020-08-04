@@ -39,7 +39,7 @@ namespace SampleApp.Template
             var searchInformationTypes = new[]
             {
                 InformationType.OperatingSystem,
-                InformationType.SerialPort
+                InformationType.SerialPorts
             };
 
             var hostNames = new[] { "HostName1", "HostName2", "HostName3" };
