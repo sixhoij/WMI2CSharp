@@ -68,5 +68,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public ulong TotalVisibleMemorySize { get; set; }
         public string Version { get; set; }
         public string WindowsDirectory { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

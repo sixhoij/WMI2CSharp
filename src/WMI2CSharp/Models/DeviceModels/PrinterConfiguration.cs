@@ -38,5 +38,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public uint VerticalResolution { get; set; }
         public uint XResolution { get; set; }
         public uint YResolution { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

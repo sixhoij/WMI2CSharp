@@ -49,5 +49,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string SystemCreationClassName { get; set; }
         public string SystemName { get; set; }
         public string TimeOfLastReset { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

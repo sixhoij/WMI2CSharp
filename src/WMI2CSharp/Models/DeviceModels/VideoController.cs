@@ -61,5 +61,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string VideoMode { get; set; }
         public string VideoModeDescription { get; set; }
         public string VideoProcessor { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

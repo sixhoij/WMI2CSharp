@@ -33,5 +33,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Vendor { get; set; }
         public string Version { get; set; }
         public uint WordCount { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

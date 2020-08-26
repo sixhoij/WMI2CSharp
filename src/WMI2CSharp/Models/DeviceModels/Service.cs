@@ -31,5 +31,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string SystemName { get; set; }
         public uint TagId { get; set; }
         public uint WaitHint { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

@@ -41,5 +41,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public ushort TotalWidth { get; set; }
         public ushort TypeDetail { get; set; }
         public string Version { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

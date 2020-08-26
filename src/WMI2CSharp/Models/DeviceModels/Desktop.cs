@@ -26,5 +26,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Wallpaper { get; set; }
         public bool WallpaperStretched { get; set; }
         public bool WallpaperTiled { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

@@ -15,5 +15,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public uint Second { get; set; }
         public uint WeekInMonth { get; set; }
         public uint Year { get; set; }
+
+        public override string ToString()
+        {
+            return Year + "/" + Month + "/" + Day;
+        }
     }
 }

@@ -61,5 +61,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public bool VirtualizationFirmwareEnabled { get; set; }
         public bool VMMonitorModeExtensions { get; set; }
         public string VoltageCaps { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

@@ -50,5 +50,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public ulong WorkingSetSize { get; set; }
         public ulong WriteOperationCount { get; set; }
         public ulong WriteTransferCount { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

@@ -13,5 +13,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public bool SystemVariable { get; set; }
         public string UserName { get; set; }
         public string VariableValue { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

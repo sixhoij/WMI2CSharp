@@ -55,5 +55,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string WINSPrimaryServer { get; set; }
         public string WINSScopeID { get; set; }
         public string WINSSecondaryServer { get; set; }
+
+        public override string ToString()
+        {
+            return Caption;
+        }
     }
 }

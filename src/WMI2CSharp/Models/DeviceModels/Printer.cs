@@ -77,5 +77,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string UntilTime { get; set; }
         public uint VerticalResolution { get; set; }
         public bool WorkOffline { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

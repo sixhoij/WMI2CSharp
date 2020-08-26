@@ -44,5 +44,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public bool VolumeDirty { get; set; }
         public string VolumeName { get; set; }
         public string VolumeSerialNumber { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

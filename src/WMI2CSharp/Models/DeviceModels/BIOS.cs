@@ -33,5 +33,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public byte SystemBiosMinorVersion { get; set; }
         public ushort TargetOperatingSystem { get; set; }
         public string Version { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

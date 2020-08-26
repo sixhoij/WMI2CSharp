@@ -53,5 +53,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public ulong TotalSectors { get; set; }
         public ulong TotalTracks { get; set; }
         public uint TracksPerCylinder { get; set; }
+        
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

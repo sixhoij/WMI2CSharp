@@ -33,5 +33,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Version { get; set; }
         public string Weight { get; set; }
         public float Width { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

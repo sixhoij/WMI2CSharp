@@ -36,5 +36,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string TokenActivationCertificateThumbprint { get; set; }
         public string TokenActivationAdditionalInfo { get; set; }
         public bool KeyManagementServiceActivationDisabled { get; set; }
+
+        public override string ToString()
+        {
+            return Version;
+        }
     }
 }

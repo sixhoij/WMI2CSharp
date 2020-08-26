@@ -61,5 +61,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string UserName { get; set; }
         public ushort WakeUpType { get; set; }
         public string Workgroup { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }

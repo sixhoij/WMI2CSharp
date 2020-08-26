@@ -29,5 +29,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public string StandardName { get; set; }
         public uint StandardSecond { get; set; }
         public uint StandardYear { get; set; }
+
+        public override string ToString()
+        {
+            return Caption;
+        }
     }
 }

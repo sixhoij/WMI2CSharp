@@ -34,5 +34,10 @@ namespace WMI2CSharp.Models.DeviceModels
         public uint XOnXMitThreshold { get; set; }
         public uint XOnXOffInFlowControl { get; set; }
         public uint XOnXOffOutFlowControl { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " " + Caption;
+        }
     }
 }
