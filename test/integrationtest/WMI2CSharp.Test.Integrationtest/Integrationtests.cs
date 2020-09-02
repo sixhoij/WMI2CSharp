@@ -20,8 +20,7 @@ namespace WMI2CSharp.Test.Integrationtest
         [TestCleanup]
         public void Cleanup()
         {
-            var device = _device;
-            AssertFetchingDevice(device);
+            AssertFetchingDevice(_device);
         }
 
         [TestMethod]
@@ -43,7 +42,7 @@ namespace WMI2CSharp.Test.Integrationtest
             device.OperatingSystem.Manufacturer.Should().NotBeNullOrEmpty();
             device.OperatingSystem.NumberOfProcesses.Should().BeGreaterOrEqualTo(1);
             device.OperatingSystem.NumberOfUsers.Should().BeGreaterOrEqualTo(1);
-            device.OperatingSystem.FreePhysicalMemory.Should().BeGreaterOrEqualTo(4 * 1024 * 1024);
+            device.OperatingSystem.FreePhysicalMemory.Should().BeGreaterOrEqualTo(1 * 1024 * 1024);
             device.BIOS.Should().BeEquivalentTo(new BIOS());
             device.BaseBoard.Should().BeEquivalentTo(new BaseBoard());
             device.ComputerSystem.Should().BeEquivalentTo(new ComputerSystem());
@@ -726,8 +725,8 @@ namespace WMI2CSharp.Test.Integrationtest
             var connected = await localAccessService.TryConnectAsync().ConfigureAwait(false);
             connected.Should().BeTrue();
             var device = await new Device()
-                .WithInformationTypes(searchInformationTypes)
                 .WithWMIAccessService(localAccessService)
+                .WithInformationTypes(searchInformationTypes)
                 .InitializeAsync()
                 .ConfigureAwait(false);
             _device = device;

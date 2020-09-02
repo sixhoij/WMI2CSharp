@@ -9,7 +9,7 @@ using WMI2CSharp.Services;
 
 namespace SampleApp.Localhost
 {
-    class Program
+    internal class Program
     {
         private static int _properties;
         private static int _exceptions;
@@ -19,7 +19,7 @@ namespace SampleApp.Localhost
         private static ICollection<Exception> _exceptionMessages;
         private static ICollection<string> _warningMessages;
 
-        static async Task Main(string[] args)
+        private static async Task Main(string[] args)
         {
             Setup();
 

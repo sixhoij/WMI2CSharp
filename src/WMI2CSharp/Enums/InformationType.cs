@@ -6,6 +6,7 @@
         BaseBoard,
         BIOS,
         ComputerSystem,
+        DataFiles,
         Desktops,
         Disks,
         DiskDrives,

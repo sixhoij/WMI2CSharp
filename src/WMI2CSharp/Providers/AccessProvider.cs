@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WMI2CSharp.Exceptions;
 using WMI2CSharp.Log;
 using WMI2CSharp.Models;
 using WMI2CSharp.Services;
@@ -94,7 +95,11 @@ namespace WMI2CSharp.Providers
                     }
                     catch (Exception exception)
                     {
-                        LogEventHandler.Exception(exception);
+                        var endPoint = string.IsNullOrEmpty(wmiConnectionOption.EndPoint)
+                            ? wmiConnectionOption.DeviceName
+                            : wmiConnectionOption.EndPoint;
+                        var wmiException = new WMIGeneralException(endPoint, exception);
+                        LogEventHandler.Exception(wmiException);
                     }
                 }
                 return connectedWMIConnectedAccessService;

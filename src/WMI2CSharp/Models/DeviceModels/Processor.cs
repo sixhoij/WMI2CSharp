@@ -41,6 +41,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string OtherFamilyDescription { get; set; }
         public string PartNumber { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public bool PowerManagementSupported { get; set; }
         public string ProcessorId { get; set; }
         public ushort ProcessorType { get; set; }

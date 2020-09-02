@@ -28,6 +28,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Name { get; set; }
         public string NumberOfBlocks { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public string PowerManagementSupported { get; set; }
         public string ProviderName { get; set; }
         public string Purpose { get; set; }

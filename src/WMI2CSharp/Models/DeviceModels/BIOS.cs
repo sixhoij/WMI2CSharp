@@ -5,6 +5,8 @@ namespace WMI2CSharp.Models.DeviceModels
     [WMIClass("Win32_BIOS")]
     public class BIOS
     {
+        public ushort[] BiosCharacteristics { get; set; }
+        public string[] BIOSVersion { get; set; }
         public string BuildNumber { get; set; }
         public string Caption { get; set; }
         public string CodeSet { get; set; }
@@ -16,6 +18,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public ushort InstallableLanguages { get; set; }
         public string InstallDate { get; set; }
         public string LanguageEdition { get; set; }
+        public string[] ListOfLanguages { get; set; }
         public string Manufacturer { get; set; }
         public string Name { get; set; }
         public string OtherTargetOS { get; set; }

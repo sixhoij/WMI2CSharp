@@ -36,6 +36,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Manufacturer { get; set; }
         public uint MaxNumberOfProcesses { get; set; }
         public ulong MaxProcessMemorySize { get; set; }
+        public string[] MUILanguages { get; set; }
         public string Name { get; set; }
         public uint NumberOfLicensedUsers { get; set; }
         public uint NumberOfProcesses { get; set; }

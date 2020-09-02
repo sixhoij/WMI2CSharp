@@ -7,6 +7,8 @@ namespace WMI2CSharp.Models.DeviceModels
     {
         public ushort Availability { get; set; }
         public bool Binary { get; set; }
+        public ushort[] Capabilities { get; set; }
+        public string[] CapabilityDescriptions { get; set; }
         public string Caption { get; set; }
         public uint ConfigManagerErrorCode { get; set; }
         public bool ConfigManagerUserConfig { get; set; }
@@ -24,6 +26,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string Name { get; set; }
         public bool OSAutoDiscovered { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public bool PowerManagementSupported { get; set; }
         public string ProtocolSupported { get; set; }
         public string ProviderType { get; set; }

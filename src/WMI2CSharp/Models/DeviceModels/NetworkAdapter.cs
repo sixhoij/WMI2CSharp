@@ -31,9 +31,11 @@ namespace WMI2CSharp.Models.DeviceModels
         public string NetConnectionID { get; set; }
         public ushort NetConnectionStatus { get; set; }
         public bool NetEnabled { get; set; }
+        public string[] NetworkAddresses { get; set; }
         public string PermanentAddress { get; set; }
         public bool PhysicalAdapter { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public bool PowerManagementSupported { get; set; }
         public string ProductName { get; set; }
         public string ServiceName { get; set; }

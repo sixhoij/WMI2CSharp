@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using WMI2CSharp.Attributes;
 using WMI2CSharp.Enums;
+using WMI2CSharp.Exceptions;
 using WMI2CSharp.Log;
 using WMI2CSharp.Models.DeviceModels;
 using WMI2CSharp.Services;
@@ -21,6 +23,8 @@ namespace WMI2CSharp.Models
     public class Device : IDevice
     {
         private WMIAccessService _wmiAccessService;
+
+        public List<Query> Queries { get; private set; }
 
         public InformationType[] InformationTypes { get; private set; }
 
@@ -38,6 +42,9 @@ namespace WMI2CSharp.Models
 
         [InformationCategory(InformationCategory.InternalHardware, InformationCategory.OperatingSystem)]
         public ComputerSystem ComputerSystem { get; set; } = new ComputerSystem();
+
+        [InformationCategory(InformationCategory.DataFiles)]
+        public ICollection<DataFile> DataFiles { get; set; } = new List<DataFile>();
 
         [InformationCategory(InformationCategory.User, InformationCategory.System)]
         public ICollection<Desktop> Desktops { get; set; } = new List<Desktop>();
@@ -81,7 +88,7 @@ namespace WMI2CSharp.Models
         [InformationCategory(InformationCategory.Configuration)]
         public ICollection<PrinterConfiguration> PrinterConfigurations { get; set; } = new List<PrinterConfiguration>();
 
-        [InformationCategory(InformationCategory.Software, InformationCategory.Application, InformationCategory.System)]
+        [InformationCategory(InformationCategory.Software, InformationCategory.Application)]
         public ICollection<Process> Processes { get; set; } = new List<Process>();
 
         [InformationCategory(InformationCategory.InternalHardware)]
@@ -99,7 +106,7 @@ namespace WMI2CSharp.Models
         [InformationCategory(InformationCategory.Configuration)]
         public ICollection<SerialPortConfiguration> SerialPortConfigurations { get; set; } = new List<SerialPortConfiguration>();
 
-        [InformationCategory(InformationCategory.Software, InformationCategory.Application, InformationCategory.System)]
+        [InformationCategory(InformationCategory.Software, InformationCategory.Application)]
         public ICollection<Service> Services { get; set; } = new List<Service>();
 
         [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
@@ -119,6 +126,7 @@ namespace WMI2CSharp.Models
 
         public Device()
         {
+            Queries = new List<Query>();
         }
 
         public Device(params InformationCategory[] informationCategories) : this(new WMIAccessService(), informationCategories)
@@ -133,7 +141,7 @@ namespace WMI2CSharp.Models
         {
         }
 
-        public Device(WMIAccessService wmiAccessService, InformationCategory[] informationCategories = null, params InformationType[] informationTypes)
+        public Device(WMIAccessService wmiAccessService, InformationCategory[] informationCategories = null, params InformationType[] informationTypes) : this()
         {
             _wmiAccessService = wmiAccessService;
             InformationTypes = informationTypes;
@@ -141,22 +149,21 @@ namespace WMI2CSharp.Models
         }
 
         /// <summary>
-        /// Device to use the provided WMIAccessService as access.
+        /// Device to use the provided WMIAccessService as access
         /// </summary>
-        /// <param name="wmiAccessService">Provides access.</param>
-        /// <returns>Returns this with provided WMIAccessService.</returns>
+        /// <param name="wmiAccessService">Provides access</param>
+        /// <returns>Returns this with provided WMIAccessService</returns>
         public IDevice WithWMIAccessService(WMIAccessService wmiAccessService)
         {
             _wmiAccessService = wmiAccessService;
             return this;
         }
 
-
         /// <summary>
-        /// Only provided InformationCategories will be gathered.
+        /// Provided InformationCategories will be gathered
         /// </summary>
-        /// <param name="searchInformationCategories">Search categories.</param>
-        /// <returns>Returns this with search categories.</returns>
+        /// <param name="searchInformationCategories">Search categories</param>
+        /// <returns>Returns this with search categories</returns>
         public IDevice WithInformationCategories(params InformationCategory[] searchInformationCategories)
         {
             InformationCategories = searchInformationCategories;
@@ -164,10 +171,10 @@ namespace WMI2CSharp.Models
         }
 
         /// <summary>
-        /// Only provided InformationTypes will be gathered.
+        /// Provided InformationTypes will be gathered
         /// </summary>
-        /// <param name="searchInformationTypes">Search types.</param>
-        /// <returns>Returns this with search types.</returns>
+        /// <param name="searchInformationTypes">Search types</param>
+        /// <returns>Returns this with search types</returns>
         public IDevice WithInformationTypes(params InformationType[] searchInformationTypes)
         {
             InformationTypes = searchInformationTypes;
@@ -175,27 +182,105 @@ namespace WMI2CSharp.Models
         }
 
         /// <summary>
+        /// Provided queries will be gathered
+        /// </summary>
+        /// <param name="queries">List of query object containing InformationType and a string with where statement</param>
+        /// <returns>Returns this with queries</returns>
+        public IDevice WithQueries(IEnumerable<Query> queries)
+        {
+            Queries.AddRange(queries);
+            return this;
+        }
+
+        /// <summary>
+        /// Provided wheres will be gathered
+        /// </summary>
+        /// <param name="informationType">Information type</param>
+        /// <param name="where">Where statement</param>
+        /// <returns>Returns this with wheres</returns>
+        public IDevice Where(InformationType informationType, string where)
+        {
+            Queries.Add(new Query(informationType, where));
+            return this;
+        }
+
+        /// <summary>
         /// Initialize information gathering, when method is finished, properties of this Device will be filled with the gathered data.
         /// </summary>
-        /// <returns>Returns awaitable Task</returns>
+        /// <returns>Returns awaitable Task with this Device</returns>
         public async Task<Device> InitializeAsync()
         {
+            EvaluateSearchOptions();
+            var cancellationToken = new CancellationToken(false);
+            var start = DateTime.Now;
+            try
+            {
+                await GetDeviceInformationAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException operationCanceledException)
+            {
+                LogEventHandler.TaskIncompleted(operationCanceledException);
+            }
+            ExecutionTime = DateTime.Now - start;
+            return this;
+        }
+
+        /// <summary>
+        /// Initialize information gathering, when method is finished, properties of this Device will be filled with the gathered data
+        /// </summary>
+        /// <param name="cancellationToken">To cancel the Tasks started by calling the method</param>
+        /// <returns>Returns awaitable Task with this Device</returns>
+        public async Task<Device> InitializeAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            EvaluateSearchOptions();
+
+            var start = DateTime.Now;
+            try
+            {
+                await GetDeviceInformationAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException operationCanceledException)
+            {
+                LogEventHandler.TaskIncompleted(operationCanceledException);
+            }
+            ExecutionTime = DateTime.Now - start;
+            return this;
+        }
+
+        private void EvaluateSearchOptions()
+        {
+            if (InformationCategories == null)
+            {
+                InformationCategories = new InformationCategory[0];
+            }
+
+            if (InformationTypes == null)
+            {
+                InformationTypes = new InformationType[0];
+            }
+
+            if (InformationCategories.Contains(InformationCategory.All))
+            {
+                InformationCategories = new[] { InformationCategory.All };
+            }
+
+            if (InformationTypes.Contains(InformationType.All))
+            {
+                InformationTypes = new[] { InformationType.All };
+            }
+
             if (InformationCategories == null && InformationTypes == null ||
-                InformationCategories != null && InformationTypes != null && !InformationTypes.Any() && !InformationCategories.Any())
+                InformationCategories != null && InformationTypes != null && !InformationTypes.Any() &&
+                !InformationCategories.Any())
             {
                 InformationCategories = new[]
                 {
                     InformationCategory.All
                 };
             }
-
-            var start = DateTime.Now;
-            await GetDeviceInformationAsync().ConfigureAwait(false);
-            ExecutionTime = DateTime.Now - start;
-            return this;
         }
 
-        private async Task GetDeviceInformationAsync()
+        private async Task GetDeviceInformationAsync(CancellationToken cancellationToken)
         {
             var tasks = new List<Task>();
 
@@ -205,13 +290,13 @@ namespace WMI2CSharp.Models
                 var isCollection = IsCollection(propertyType);
                 propertyType = SetPropertyType(isCollection, propertyType);
                 var wmiClassName = GetWMIClassName(propertyType);
-                tasks.Add(FetchDataAsync(propertyInfo, isCollection, propertyType, wmiClassName));
+                tasks.Add(FetchDataAsync(propertyInfo, isCollection, propertyType, wmiClassName, cancellationToken));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
-        private Task FetchDataAsync(PropertyInfo propertyInfo, bool isCollection, Type propertyType, string wmiClassName)
+        private Task FetchDataAsync(PropertyInfo propertyInfo, bool isCollection, Type propertyType, string wmiClassName, CancellationToken cancellationToken)
         {
             return Task.Run(async () =>
             {
@@ -219,14 +304,28 @@ namespace WMI2CSharp.Models
                 {
                     if (isCollection)
                     {
-                        await FillCollectionPropertyPropertiesAsync(propertyInfo, propertyType, wmiClassName).ConfigureAwait(false);
+                        await FillCollectionPropertyPropertiesAsync(propertyInfo, propertyType, wmiClassName, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        await FillPropertyPropertiesAsync(propertyInfo, wmiClassName).ConfigureAwait(false);
+                        await FillPropertyPropertiesAsync(propertyInfo, wmiClassName, cancellationToken).ConfigureAwait(false);
                     }
                 }
-            });
+            }, cancellationToken);
+        }
+
+        private string CreateWhereClause(string where)
+        {
+            var whereClause = where;
+            if (string.IsNullOrEmpty(whereClause))
+            {
+                whereClause = string.Empty;
+            }
+            if (!whereClause.Contains("where"))
+            {
+                whereClause = whereClause.Insert(0, " where ");
+            }
+            return whereClause;
         }
 
         private string GetWMIClassName(MemberInfo propertyType)
@@ -240,19 +339,40 @@ namespace WMI2CSharp.Models
         {
             if (isCollection)
             {
-                propertyType = propertyType?.GenericTypeArguments?.ToList().First();
+                propertyType = propertyType?.GenericTypeArguments?.First();
             }
             return propertyType;
         }
 
         private bool IsCollection(Type propertyType)
         {
-            return propertyType.GenericTypeArguments.ToList().Any();
+            return propertyType.GenericTypeArguments.Any();
         }
 
         private bool ShouldFetchData(MemberInfo memberInfo)
         {
-            return InformationCategorySelected(memberInfo) || InformationTypeSelected(memberInfo);
+            return (InformationCategorySelected(memberInfo) ||
+                   InformationTypeSelected(memberInfo)) &&
+                   IsDataFilesSelectedWithoutWhere(memberInfo);
+        }
+
+        private bool IsDataFilesSelectedWithoutWhere(MemberInfo memberInfo)
+        {
+            if (InformationTypes != null || InformationCategories != null)
+            {
+                var typeName = memberInfo?.Name;
+                var informationTypeParsed = Enum.TryParse(typeName, out InformationType informationType);
+
+                if ((InformationTypes == null || !InformationTypes.Contains(InformationType.All) || !InformationTypes.Contains(InformationType.DataFiles)) ||
+                    (InformationCategories == null || !InformationCategories.Contains(InformationCategory.DataFiles)) || !InformationCategories.Contains(InformationCategory.All))
+                {
+                    var shouldFetchDataFiles = informationTypeParsed && informationType != InformationType.DataFiles ||
+                                               Queries.Any(x => x.InformationType == InformationType.DataFiles);
+                    return shouldFetchDataFiles;
+                }
+            }
+
+            return false;
         }
 
         private bool InformationTypeSelected(MemberInfo memberInfo)
@@ -267,7 +387,6 @@ namespace WMI2CSharp.Models
                 var typeName = memberInfo?.Name;
                 var parsed = Enum.TryParse(typeName, out InformationType informationType);
                 return parsed && InformationTypes.Contains(informationType);
-
             }
 
             return false;
@@ -302,27 +421,71 @@ namespace WMI2CSharp.Models
             return false;
         }
 
-        private async Task FillPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, string wmiClassName)
+        private async Task FillPropertyPropertiesAsync(PropertyInfo propertyInfo, string wmiClassName, CancellationToken cancellationToken)
         {
             if (_wmiAccessService != null)
             {
-                var managementBaseObject = await (_wmiAccessService?.TryQueryAsync(wmiClassName)).ConfigureAwait(false);
-                var obj = await TryMapObjectAsync(managementBaseObject, modelPropertyInfo?.PropertyType).ConfigureAwait(false);
-                modelPropertyInfo?.SetValue(this, obj);
+                var wheres = Queries.Where(x => x.InformationType.ToString() == propertyInfo.Name).Select(x => x.Where);
+                if (wheres.Any())
+                {
+                    var tasks = new List<Task>();
+                    foreach (var where in wheres)
+                    {
+                        tasks.Add(Task.Run(async () =>
+                        {
+                            var whereClause = CreateWhereClause(where);
+                            await FetchAndMapObjectAsync(propertyInfo, wmiClassName, whereClause, cancellationToken).ConfigureAwait(false);
+                        }, cancellationToken));
+                    }
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FetchAndMapObjectAsync(propertyInfo, wmiClassName, string.Empty, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
-        private async Task FillCollectionPropertyPropertiesAsync(PropertyInfo modelPropertyInfo, Type propertyType, string wmiClassName)
+        private async Task FetchAndMapObjectAsync(PropertyInfo propertyInfo, string wmiClassName, string whereClause, CancellationToken cancellationToken)
+        {
+            var managementBaseObject = await (_wmiAccessService?.TryQueryAsync(wmiClassName, whereClause, cancellationToken)).ConfigureAwait(false);
+            var obj = await TryMapObjectAsync(managementBaseObject, propertyInfo?.PropertyType).ConfigureAwait(false);
+            propertyInfo?.SetValue(this, obj);
+        }
+
+        private async Task FillCollectionPropertyPropertiesAsync(PropertyInfo propertyInfo, Type propertyType, string wmiClassName, CancellationToken cancellationToken)
         {
             if (_wmiAccessService != null)
             {
-                var managementBaseObjects = await (_wmiAccessService?.TryQueryCollectionAsync(wmiClassName)).ConfigureAwait(false);
-                foreach (var managementBaseObject in managementBaseObjects)
+                var wheres = Queries.Where(x => x.InformationType.ToString() == propertyInfo.Name).Select(x => x.Where);
+                if (wheres.Any())
                 {
-                    var obj = await TryMapObjectAsync(managementBaseObject, propertyType).ConfigureAwait(false);
-                    var collection = modelPropertyInfo?.GetValue(this, null);
-                    modelPropertyInfo?.PropertyType.GetMethod("Add")?.Invoke(collection, new[] { obj });
+                    var tasks = new List<Task>();
+                    foreach (var where in wheres)
+                    {
+                        tasks.Add(Task.Run(async () =>
+                        {
+                            var whereClause = CreateWhereClause(where);
+                            await FetchAndMapCollectionAsync(propertyInfo, propertyType, wmiClassName, whereClause, cancellationToken).ConfigureAwait(false);
+                        }, cancellationToken));
+                    }
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
+                else
+                {
+                    await FetchAndMapCollectionAsync(propertyInfo, propertyType, wmiClassName, string.Empty, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async Task FetchAndMapCollectionAsync(PropertyInfo propertyInfo, Type propertyType, string wmiClassName, string whereClause, CancellationToken cancellationToken)
+        {
+            var managementBaseObjects = await (_wmiAccessService?.TryQueryCollectionAsync(wmiClassName, whereClause, cancellationToken)).ConfigureAwait(false);
+            foreach (var managementBaseObject in managementBaseObjects)
+            {
+                var obj = await TryMapObjectAsync(managementBaseObject, propertyType).ConfigureAwait(false);
+                var collection = propertyInfo?.GetValue(this, null);
+                propertyInfo?.PropertyType.GetMethod("Add")?.Invoke(collection, new[] { obj });
             }
         }
 
@@ -351,12 +514,14 @@ namespace WMI2CSharp.Models
                         {
                             if (exception.ErrorCode != ManagementStatus.NotFound)
                             {
-                                LogEventHandler.Exception(exception);
+                                var wmiException = new WMIGeneralException(EndPoint, exception);
+                                LogEventHandler.Exception(wmiException);
                             }
                         }
                         catch (Exception exception)
                         {
-                            LogEventHandler.Exception(exception);
+                            var wmiException = new WMIGeneralException(EndPoint, exception);
+                            LogEventHandler.Exception(wmiException);
                         }
                     }));
                 }
@@ -366,7 +531,7 @@ namespace WMI2CSharp.Models
             return objectInstance;
         }
 
-        private static void TrySetValue(object objectInstance, PropertyInfo propertyInfo, PropertyData propertyData)
+        private void TrySetValue(object objectInstance, PropertyInfo propertyInfo, PropertyData propertyData)
         {
             try
             {
@@ -387,7 +552,8 @@ namespace WMI2CSharp.Models
                 }
                 catch (Exception exception)
                 {
-                    LogEventHandler.Exception(exception);
+                    var wmiException = new WMIGeneralException(EndPoint, exception);
+                    LogEventHandler.Exception(wmiException);
                 }
             }
         }

@@ -7,6 +7,8 @@ namespace WMI2CSharp.Models.DeviceModels
     {
         public string Access { get; set; }
         public string Availability { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
+        public string[] IdentifyingDescriptions { get; set; }
         public ulong BlockSize { get; set; }
         public bool Bootable { get; set; }
         public bool BootPartition { get; set; }

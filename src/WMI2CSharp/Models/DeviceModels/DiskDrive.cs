@@ -7,6 +7,8 @@ namespace WMI2CSharp.Models.DeviceModels
     {
         public string Availability { get; set; }
         public uint BytesPerSector { get; set; }
+        public ushort[] Capabilities { get; set; }
+        public string[] CapabilityDescriptions { get; set; }
         public string Caption { get; set; }
         public string CompressionMethod { get; set; }
         public uint ConfigManagerErrorCode { get; set; }
@@ -35,6 +37,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string NumberOfMediaSupported { get; set; }
         public uint Partitions { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public string PowerManagementSupported { get; set; }
         public uint SCSIBus { get; set; }
         public ushort SCSILogicalUnit { get; set; }
@@ -53,7 +56,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public ulong TotalSectors { get; set; }
         public ulong TotalTracks { get; set; }
         public uint TracksPerCylinder { get; set; }
-        
+
         public override string ToString()
         {
             return Name + " " + Caption;

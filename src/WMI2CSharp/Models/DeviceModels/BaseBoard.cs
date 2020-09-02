@@ -6,6 +6,7 @@ namespace WMI2CSharp.Models.DeviceModels
     public class BaseBoard
     {
         public string Caption { get; set; }
+        public string[] ConfigOptions { get; set; }
         public string CreationClassName { get; set; }
         public string Depth { get; set; }
         public string Description { get; set; }

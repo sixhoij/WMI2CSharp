@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Management;
+using System.Threading;
 using System.Threading.Tasks;
+using WMI2CSharp.Exceptions;
 using WMI2CSharp.Log;
 using WMI2CSharp.Models;
 
@@ -29,11 +31,11 @@ namespace WMI2CSharp.Services
         /// </summary>
         /// <param name="wmiClass">To query with WMI on EndPoint.</param>
         /// <returns>Returns awaitable Task with ManagementBaseObject.</returns>
-        public async Task<ManagementBaseObject> TryQueryAsync(string wmiClass)
+        public async Task<ManagementBaseObject> TryQueryAsync(string wmiClass, string wmiWhereClause, CancellationToken cancellationToken)
         {
             try
             {
-                var objectCollection = await TryGetObjectCollectionAsync(wmiClass).ConfigureAwait(false);
+                var objectCollection = await TryGetObjectCollectionAsync(wmiClass, wmiWhereClause, cancellationToken).ConfigureAwait(false);
                 if (objectCollection is ManagementObjectCollection managementObjectCollection)
                 {
                     foreach (var managementObject in managementObjectCollection)
@@ -58,12 +60,12 @@ namespace WMI2CSharp.Services
         /// </summary>
         /// <param name="wmiClass">To query with WMI on EndPoint.</param>
         /// <returns>Returns awaitable Task with IEnumerable of ManagementBaseObject.</returns>
-        public async Task<IEnumerable<ManagementBaseObject>> TryQueryCollectionAsync(string wmiClass)
+        public async Task<IEnumerable<ManagementBaseObject>> TryQueryCollectionAsync(string wmiClass, string wmiWhereClause, CancellationToken cancellationToken)
         {
             var objectList = new List<ManagementBaseObject>();
             try
             {
-                var objectCollection = await TryGetObjectCollectionAsync(wmiClass).ConfigureAwait(false);
+                var objectCollection = await TryGetObjectCollectionAsync(wmiClass, wmiWhereClause, cancellationToken).ConfigureAwait(false);
                 if (objectCollection is ManagementObjectCollection managementObjectCollection)
                 {
                     foreach (var managementObject in managementObjectCollection)
@@ -154,7 +156,7 @@ namespace WMI2CSharp.Services
             }).ConfigureAwait(false);
         }
 
-        private async Task<ManagementObjectCollection> TryGetObjectCollectionAsync(string wmiClass)
+        private async Task<ManagementObjectCollection> TryGetObjectCollectionAsync(string wmiClass, string wmiWhereClause, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
@@ -163,7 +165,8 @@ namespace WMI2CSharp.Services
                     ConnectionGuard();
                     if (Connected)
                     {
-                        var objectQuery = new ObjectQuery($"SELECT * FROM {wmiClass}");
+                        var wmiWhere = string.IsNullOrEmpty(wmiWhereClause) ? string.Empty : wmiWhereClause;
+                        var objectQuery = new ObjectQuery($"SELECT * FROM {wmiClass} {wmiWhere}");
                         var objectSearcher = new ManagementObjectSearcher(_managementScope, objectQuery);
                         var objectCollection = objectSearcher.Get();
                         return objectCollection;
@@ -174,7 +177,7 @@ namespace WMI2CSharp.Services
                     LogException(exception);
                 }
                 return null;
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         private void ConnectionGuard()
@@ -198,8 +201,23 @@ namespace WMI2CSharp.Services
 
         private void LogException(Exception exception)
         {
-            exception.Data.Add("EndPoint", EndPoint);
-            LogEventHandler.Exception(exception);
+            var data = string.Empty;
+            if (exception is ManagementException managementException)
+            {
+                var parameterInfo = managementException.ErrorInformation.Properties["ParameterInfo"].Value.ToString();
+                if (!string.IsNullOrEmpty(parameterInfo))
+                {
+                    data += parameterInfo;
+                }
+            }
+
+            if (string.IsNullOrEmpty(data))
+            {
+                data = exception.Message;
+            }
+
+            var wmiException = new WMIGeneralException(EndPoint, data, exception);
+            LogEventHandler.Exception(wmiException);
         }
     }
 }

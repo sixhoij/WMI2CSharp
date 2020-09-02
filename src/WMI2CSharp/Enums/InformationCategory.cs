@@ -12,6 +12,7 @@
         Application,
         Network,
         Configuration,
-        PNP
+        PNP,
+        DataFiles
     }
 }

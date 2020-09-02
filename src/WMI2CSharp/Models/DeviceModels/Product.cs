@@ -1,5 +1,4 @@
-﻿using System;
-using WMI2CSharp.Attributes;
+﻿using WMI2CSharp.Attributes;
 
 namespace WMI2CSharp.Models.DeviceModels
 {
@@ -13,7 +12,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string HelpTelephone { get; set; }
         public string IdentifyingNumber { get; set; }
         public string InstallDate { get; set; }
-        public DateTime InstallDate2 { get; set; }
+        public string InstallDate2 { get; set; }
         public string InstallLocation { get; set; }
         public string InstallSource { get; set; }
         public short InstallState { get; set; }

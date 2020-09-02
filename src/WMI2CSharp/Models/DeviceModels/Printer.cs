@@ -7,18 +7,24 @@ namespace WMI2CSharp.Models.DeviceModels
     {
         public uint Attributes { get; set; }
         public string Availability { get; set; }
+        public string[] AvailableJobSheets { get; set; }
         public uint AveragePagesPerMinute { get; set; }
+        public ushort[] Capabilities { get; set; }
+        public string[] CapabilityDescriptions { get; set; }
         public string Caption { get; set; }
+        public string[] CharSetsSupported { get; set; }
         public string Comment { get; set; }
         public string ConfigManagerErrorCode { get; set; }
         public string ConfigManagerUserConfig { get; set; }
         public string CreationClassName { get; set; }
+        public ushort[] CurrentCapabilities { get; set; }
         public string CurrentCharSet { get; set; }
         public string CurrentLanguage { get; set; }
         public string CurrentMimeType { get; set; }
         public string CurrentNaturalLanguage { get; set; }
         public string CurrentPaperType { get; set; }
         public bool Default { get; set; }
+        public ushort[] DefaultCapabilities { get; set; }
         public string DefaultCopies { get; set; }
         public string DefaultLanguage { get; set; }
         public string DefaultMimeType { get; set; }
@@ -35,6 +41,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public bool EnableDevQueryPrint { get; set; }
         public string ErrorCleared { get; set; }
         public string ErrorDescription { get; set; }
+        public string[] ErrorInformation { get; set; }
         public ushort ExtendedDetectedErrorState { get; set; }
         public ushort ExtendedPrinterStatus { get; set; }
         public bool Hidden { get; set; }
@@ -42,6 +49,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public string InstallDate { get; set; }
         public uint JobCountSinceLastReset { get; set; }
         public bool KeepPrintedJobs { get; set; }
+        public ushort[] LanguagesSupported { get; set; }
         public string LastErrorCode { get; set; }
         public bool Local { get; set; }
         public string Location { get; set; }
@@ -49,12 +57,18 @@ namespace WMI2CSharp.Models.DeviceModels
         public string MaxCopies { get; set; }
         public string MaxNumberUp { get; set; }
         public string MaxSizeSupported { get; set; }
+        public string[] MimeTypesSupported { get; set; }
         public string Name { get; set; }
+        public string[] NaturalLanguagesSupported { get; set; }
         public bool Network { get; set; }
+        public ushort[] PaperSizesSupported { get; set; }
+        public string[] PaperTypesAvailable { get; set; }
         public string Parameters { get; set; }
         public string PNPDeviceID { get; set; }
         public string PortName { get; set; }
-        public string PowerManagementSupported { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
+        public bool PowerManagementSupported { get; set; }
+        public string[] PrinterPaperNames { get; set; }
         public uint PrinterState { get; set; }
         public ushort PrinterStatus { get; set; }
         public string PrintJobDataType { get; set; }

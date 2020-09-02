@@ -5,10 +5,12 @@ namespace WMI2CSharp.Models.DeviceModels
     [WMIClass("Win32_VideoController")]
     public class VideoController
     {
+        public ushort[] AcceleratorCapabilities { get; set; }
         public string AdapterCompatibility { get; set; }
         public string AdapterDACType { get; set; }
         public uint AdapterRAM { get; set; }
         public ushort Availability { get; set; }
+        public string[] CapabilityDescriptions { get; set; }
         public string Caption { get; set; }
         public string ColorTableEntries { get; set; }
         public uint ConfigManagerErrorCode { get; set; }
@@ -46,6 +48,7 @@ namespace WMI2CSharp.Models.DeviceModels
         public ushort NumberOfColorPlanes { get; set; }
         public string NumberOfVideoPages { get; set; }
         public string PNPDeviceID { get; set; }
+        public ushort[] PowerManagementCapabilities { get; set; }
         public string PowerManagementSupported { get; set; }
         public string ProtocolSupported { get; set; }
         public string ReservedSystemPaletteEntries { get; set; }
