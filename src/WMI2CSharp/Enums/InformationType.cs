@@ -13,6 +13,7 @@
         DiskPartitions,
         Environments,
         LocalTime,
+        MappedDisks,
         NetworkAdapters,
         NetworkAdapterConfigurations,
         OperatingSystem,

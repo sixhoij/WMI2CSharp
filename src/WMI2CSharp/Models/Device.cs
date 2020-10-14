@@ -64,6 +64,9 @@ namespace WMI2CSharp.Models
         [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
         public LocalTime LocalTime { get; set; } = new LocalTime();
 
+        [InformationCategory(InformationCategory.System, InformationCategory.OperatingSystem)]
+        public ICollection<MappedDisk> MappedDisks { get; set; } = new List<MappedDisk>();
+
         [InformationCategory(InformationCategory.InternalHardware, InformationCategory.Network)]
         public ICollection<NetworkAdapter> NetworkAdapters { get; set; } = new List<NetworkAdapter>();
 

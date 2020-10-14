@@ -51,6 +51,7 @@ namespace WMI2CSharp.Test.Integrationtest
             device.DiskPartitions.Should().BeEquivalentTo(new List<DiskPartition>());
             device.Disks.Should().BeEquivalentTo(new List<Disk>());
             device.Environments.Should().BeEquivalentTo(new List<Models.DeviceModels.Environment>());
+            device.MappedDisks.Should().BeEquivalentTo(new List<MappedDisk>());
             device.NetworkAdapterConfigurations.Should().BeEquivalentTo(new List<NetworkAdapterConfiguration>());
             device.NetworkAdapters.Should().BeEquivalentTo(new List<NetworkAdapter>());
             device.PNPEntities.Should().BeEquivalentTo(new List<PNPEntity>());
@@ -246,6 +247,26 @@ namespace WMI2CSharp.Test.Integrationtest
         {
             device.LocalTime.Should().NotBeNull();
             device.LocalTime.Should().NotBeEquivalentTo(new LocalTime());
+        }
+
+        [TestMethod]
+        public async Task FetchMappedDisksFromLocalhostAsync()
+        {
+            var searchInformationTypes = new[]
+            {
+                InformationType.MappedDisks
+            };
+
+            var device = await FetchDeviceAsync(searchInformationTypes);
+
+            AssertMappedDisks(device);
+        }
+
+        private static void AssertMappedDisks(Device device)
+        {
+            device.MappedDisks.Should().NotBeNull();
+            device.MappedDisks.Should().NotContainNulls();
+            device.MappedDisks.Should().OnlyHaveUniqueItems();
         }
 
         [TestMethod]
